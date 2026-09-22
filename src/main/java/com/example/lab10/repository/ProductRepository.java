@@ -4,8 +4,10 @@ import com.example.lab10.model.Product;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  * ProductRepository — In-memory Reactive Repository
@@ -47,7 +49,7 @@ public class ProductRepository {
      */
     public Mono<Product> findById(String id) {
         // TODO: เติม code ตรงนี้
-        return null; // ← แก้บรรทัดนี้
+        return Mono.justOrEmpty(store.get(id)); // ← แก้บรรทัดนี้
     }
 
     // ── 2. หา Product ทั้งหมด ────────────────────────────
@@ -59,7 +61,7 @@ public class ProductRepository {
      */
     public Flux<Product> findAll() {
         // TODO: เติม code ตรงนี้
-        return null; // ← แก้บรรทัดนี้
+        return Flux.fromIterable(store.values()); // ← แก้บรรทัดนี้
     }
 
     // ── 3. บันทึก Product ────────────────────────────────
@@ -70,8 +72,11 @@ public class ProductRepository {
      *       แล้วใช้ Mono.just(product) คืนค่า
      */
     public Mono<Product> save(Product product) {
-        // TODO: เติม code ตรงนี้
-        return null; // ← แก้บรรทัดนี้
+       if (product.getId() == null || product.getId().isEmpty()) {
+            product.setId(String.valueOf(store.size() + 1));
+        }
+        store.put(product.getId(), product);
+        return Mono.just(product); // ← แก้บรรทัดนี้
     }
 
     // ── 4. ลบ Product ────────────────────────────────────
@@ -82,8 +87,8 @@ public class ProductRepository {
      *       แล้วใช้ Mono.empty() คืนค่า (Mono<Void>)
      */
     public Mono<Void> deleteById(String id) {
-        // TODO: เติม code ตรงนี้
-        return null; // ← แก้บรรทัดนี้
+        store.remove(id);
+        return Mono.empty(); // ← แก้บรรทัดนี้
     }
 
     // ── 5. กรองตาม category ──────────────────────────────
@@ -94,7 +99,7 @@ public class ProductRepository {
      *       .filter(p -> p.getCategory().equalsIgnoreCase(category))
      */
     public Flux<Product> findByCategory(String category) {
-        // TODO: เติม code ตรงนี้
-        return null; // ← แก้บรรทัดนี้
+         return findAll()
+            .filter(p -> p.getCategory().equalsIgnoreCase(category)); // ← แก้บรรทัดนี้
     }
 }
